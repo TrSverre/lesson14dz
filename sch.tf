@@ -63,13 +63,18 @@ resource "yandex_compute_instance" "vm-1" {
     source      = "./dockerfile"
     destination = "/home/user/Dockerfile"
   }
+  provisioner "file" {
+    source      = "./id_rsa"
+    destination = "/home/user/.ssh"
+  }
   provisioner "remote-exec" {
     inline = [
       "sudo apt update", 
       "sudo apt install docker.io -y",
       "cd /home/user", 
       "sudo docker build -t test1 .",
-      "sudo docker run -d -v /var/www/html:/var/www/html test1"
+      "sudo docker run -d -v app:/var/www/html test1",
+      "sudo rsync -a /var/lib/docker/volume/app/_data username@${yandex_compute_instance.vm-2.network_interface.0.nat_ip_address}:/home/user/",
     ]
   }
 
@@ -105,6 +110,18 @@ resource "yandex_compute_instance" "vm-2" {
   }
   scheduling_policy {
     preemptible = true 
+  }
+  connection {
+    type     = "ssh"
+    user     = "user"
+    private_key = file("./id_rsa")
+    host = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update", 
+      "sudo apt install tomcat9 -y"
+    ]
   }
 
 }
