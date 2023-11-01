@@ -59,8 +59,18 @@ resource "yandex_compute_instance" "vm-1" {
     private_key = file("./id_rsa")
     host = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
   }
+  provisioner "file" {
+    source      = "./dockerfile"
+    destination = "/home/user/Dockerfile"
+  }
   provisioner "remote-exec" {
-    inline = ["echo \"Hello, World \""]
+    inline = [
+      "sudo apt update", 
+      "sudo apt install docker.io -y",
+      "cd /home/user", 
+      "sudo docker build -t test1 .",
+      "sudo docker run -d -v /var/www/html:/var/www/html test1"
+    ]
   }
 
 }
