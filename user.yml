@@ -1,0 +1,13 @@
+#cloud-config
+datasource:
+ Ec2:
+  strict_id: false
+ssh_pwauth: no
+users:
+- name: user
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  shell: /bin/bash
+  ssh_authorized_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICAp7cHJUBf4Nk/cJoUX7e5m6Hch7As/tfmT9Xnzh2Sc sverre\sverre@Sverre
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCu6ylBe0QYv/fJQkaJclcEvvGNieOXJcK0P9C3CrlXB/ipsdIgZNl9g4lJxUtJFVfd+1M4cVcISo784tsymfjMmk46/FdAzaQeSrn1QOdZbdACqWqNGURLmdAHtvJ/Z13hNHW2Rezh0A876GgiKTzZLEXtd2By+sJJ26iwwMxJUzdmUyUNnDZ9QT74TfJWNjtRLcdoPnl/wdMM3oN/p5qUJTAh/NdiHasownGuOLtzWQEZ2U+JSh2uhZsEnLn0s5KmUvps2vD+dfAvBnESROM5E6boYfGMx1WjPnpZt6Wa+mLDvbBlRnPF+QWMzsArFlfqz6EyMTI2HLJsFK7hJ1PhZvSfxBLqds8ITE3yeCH/wtuM5JtxirLdYcPUQ6WfnBpQ6LD/erR1a/dsuLF3hhnUdAvxkJ1lNsBoQO6UnTcas8g/siQVM5/fRwHxFzZdQxFQPJ/7sII1l7uyQPL87AGQIUYFRlSa8vnjaJ3H/fF71sw5xd36byEuhBstbw2SL9k= root@lesson12dz
+runcmd: []
