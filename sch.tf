@@ -57,7 +57,7 @@ resource "yandex_compute_instance" "vm-1" {
     type     = "ssh"
     user     = "user"
     private_key = file("./id_rsa")
-    host = yandex_compute_instance.vm-1.network_interface.nat_ip_address
+    host = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
   }
   provisioner "remote-exec" {
     inline = ["echo \"Hello, World \""]
