@@ -117,12 +117,14 @@ resource "yandex_compute_instance" "vm-2" {
     private_key = file("./id_rsa")
     host = yandex_compute_instance.vm-2.network_interface.0.nat_ip_address
   }
-  #provisioner "remote-exec" {
-  #  inline = [
-  #    "sudo apt update", 
-  #    "sudo apt install tomcat9 -y"
-  #  ]
-  #}
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update", 
+      "sudo apt install docker.io -y",
+      "sudo docker pull cr.yandex/${yandex_container_registry.my-reg.id}/test1",
+      "sudo docker run -d -p 8080:8080 cr.yandex/${yandex_container_registry.my-reg.id}/test1",
+    ]
+  }
 
 }
 
@@ -140,22 +142,17 @@ resource "yandex_container_registry" "my-reg" {
     my-label = "my-label-value"
   }
 }
-resource "yandex_container_repository" "my-rep" {
- name = "${yandex_container_registry.my-reg.id}/test-repository"
-}
-
-resource "yandex_container_repository_iam_binding" "pusher" {
-  repository_id = yandex_container_repository.my-rep.id
-  role        = "container-registry.images.pusher"
+resource "yandex_container_registry_iam_binding" "puller" {
+  registry_id = yandex_container_registry.my-reg.id
+  role        = "container-registry.images.puller"
 
   members = [
     "system:allUsers",
   ]
 }
-
-resource "yandex_container_registry_iam_binding" "puller" {
+resource "yandex_container_registry_iam_binding" "pusher" {
   registry_id = yandex_container_registry.my-reg.id
-  role        = "container-registry.images.puller"
+  role        = "container-registry.images.pusher"
 
   members = [
     "system:allUsers",
