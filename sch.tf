@@ -125,6 +125,9 @@ resource "yandex_compute_instance" "vm-2" {
       "sudo docker run -d -p 8080:8080 cr.yandex/${yandex_container_registry.my-reg.id}/test1",
     ]
   }
+  depends_on = [
+    yandex_compute_instance.vm-1
+  ]
 
 }
 
