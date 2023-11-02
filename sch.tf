@@ -73,11 +73,11 @@ resource "yandex_compute_instance" "vm-1" {
       "sudo apt install docker.io -y",
       "cd /home/user", 
       "sudo docker build -t test1 .",
-      "sudo docker run -d -v app:/var/www/html test1",
-      "sudo rsync -a /var/lib/docker/volume/app/_data username@${yandex_compute_instance.vm-2.network_interface.0.nat_ip_address}:/home/user/",
+      #"sudo docker run -d -v app:/var/www/html test1",
+      "docker push cr.yandex/${yandex_container_repository.my-rep.id}/test1"    
     ]
   }
-
+rsync -a /var/lib/docker/volume/app/_data user@51.250.79.53:/var/lib/tomcat9/webapps
 }
 
 resource "yandex_compute_disk" "hddvm1" {
@@ -115,14 +115,14 @@ resource "yandex_compute_instance" "vm-2" {
     type     = "ssh"
     user     = "user"
     private_key = file("./id_rsa")
-    host = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
+    host = yandex_compute_instance.vm-2.network_interface.0.nat_ip_address
   }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt update", 
-      "sudo apt install tomcat9 -y"
-    ]
-  }
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "sudo apt update", 
+  #    "sudo apt install tomcat9 -y"
+  #  ]
+  #}
 
 }
 
@@ -131,4 +131,15 @@ resource "yandex_compute_disk" "hddvm2" {
   zone     = "ru-central1-a"
   image_id = data.yandex_compute_image.ubuntu_image.id
   size = 15
+}
+
+resource "yandex_container_registry" "my-reg" {
+  name = "my-registry"
+  folder_id = "b1gum68ifoa9fbhijk7v"
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+resource "yandex_container_repository" "my-rep" {
+ name = "${yandex_container_registry.my-reg.id}/test-repository"
 }
