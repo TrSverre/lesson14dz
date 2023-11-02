@@ -63,10 +63,10 @@ resource "yandex_compute_instance" "vm-1" {
     source      = "./dockerfile"
     destination = "/home/user/Dockerfile"
   }
-  provisioner "file" {
-    source      = "./id_rsa"
-    destination = "/home/user/.ssh"
-  }
+  #provisioner "file" {
+  #  source      = "./id_rsa"
+  #  destination = "/home/user/.ssh/id_rsa"
+  #}
   provisioner "remote-exec" {
     inline = [
       "sudo apt update", 
@@ -74,10 +74,10 @@ resource "yandex_compute_instance" "vm-1" {
       "cd /home/user", 
       "sudo docker build -t test1 .",
       #"sudo docker run -d -v app:/var/www/html test1",
-      "docker push cr.yandex/${yandex_container_repository.my-rep.id}/test1"    
+      "sudo docker tag test1 cr.yandex/${yandex_container_registry.my-reg.id}/test1",
+      "sudo docker push cr.yandex/${yandex_container_registry.my-reg.id}/test1",    
     ]
   }
-rsync -a /var/lib/docker/volume/app/_data user@51.250.79.53:/var/lib/tomcat9/webapps
 }
 
 resource "yandex_compute_disk" "hddvm1" {
@@ -142,4 +142,22 @@ resource "yandex_container_registry" "my-reg" {
 }
 resource "yandex_container_repository" "my-rep" {
  name = "${yandex_container_registry.my-reg.id}/test-repository"
+}
+
+resource "yandex_container_repository_iam_binding" "pusher" {
+  repository_id = yandex_container_repository.my-rep.id
+  role        = "container-registry.images.pusher"
+
+  members = [
+    "system:allUsers",
+  ]
+}
+
+resource "yandex_container_registry_iam_binding" "puller" {
+  registry_id = yandex_container_registry.my-reg.id
+  role        = "container-registry.images.puller"
+
+  members = [
+    "system:allUsers",
+  ]
 }
